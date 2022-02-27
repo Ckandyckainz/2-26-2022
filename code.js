@@ -113,6 +113,11 @@ function physicsLoop(){
             }
         }
     });
+    if (yourRobot.y+yrm/2 > mch-yourRobot.velY-1) {
+        if (yourRobot.y+yrm/2 < mch+yourRobot.velY+1) {
+            falling = false;
+        }
+    }
     if (falling) {
         yourRobot.velY += velChange/4;
     } else {

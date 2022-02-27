@@ -10,6 +10,7 @@ if (mcw > mch) {
 } else {
     mcm = mcw;
 }
+let timer = 0;
 let ledgeCount = 18;
 let bc = [102/255, 77/255, 51/255];
 yrm = mcm/20;
@@ -45,6 +46,62 @@ class YourRobot{
         mctx.strokeStyle = colorString(0, 0, 1, 1);
         mctx.lineWidth = yrm/8;
         mctx.strokeRect(this.x-yrm/4, this.y-yrm/4, yrm/2, yrm/2);
+    }
+}
+
+class Robot{
+    constructor(id){
+        this.id = id;
+        this.x = Math.random();
+        this.y = mch;
+        this.tarA = 0;
+        this.tarD = 0;
+        this.speed = velChange*3;
+        this.lasers = [];
+        this.idCounter = 0;
+        this.radius = randomBetween(yrm/3, yrm*1.5, 1);
+        this.shootAngle = Math.random()*Math.PI*2;
+        this.shootAngleVary = Math.random()*Math.PI;
+        this.shootDistance = Math.random()*mcm/2;
+        this.shootDistanceVary = Math.random()*mcm/4;
+        this.setTar();
+    }
+    drawSelf(){
+        mctx.fillStyle = colorString(0.5, 0.5, 0.5, 1);
+        mctx.fillRect(this.x-yrm/2, this.y-yrm/2, yrm, yrm);
+        mctx.strokeStyle = colorString(1, 1, 0, 1);
+        mctx.lineWidth = yrm/8;
+        mctx.strokeRect(this.x-yrm/4, this.y-yrm/4, yrm/2, yrm/2);
+    }
+    setTar(){
+        this.tarA = randomBetween(this.shootAngle-this.shootAngleVary, this.shootAngle+this.shootAngleVary, 0.01);
+        this.tarD = randomBetween(this.shootDistance-this.shootDistanceVary, this.shootDistance+this.shootDistanceVary, 1);
+    }
+    updatePhysics(){
+        let angle = Math.atan2(this.y-yourRobot.y, this.x-yourRobot.x);
+        let distance = getDiagonal(this.x-yourRobot.x, this.y-yourRobot.y);
+        let moveTime = distance;
+        let newA = angle+(this.tarA-angle)/moveTime;
+        let newD = distance+(this.tarD-distance)/moveTime;
+        this.x = yourRobot.x+Math.cos(newA)*newD;
+        this.y = yourRobot.y+Math.sin(newA)*newD;
+
+        this.lasers.forEach((laser)=>{
+            laser.x += Math.cos(laser.angle)*10;
+            laser.y += Math.sin(laser.angle)*10;
+            if (laser.x > mcw) {
+                laser.remove();
+            }
+            if (laser.y > mch) {
+                laser.remove();
+            }
+            if (laser.x < 0) {
+                laser.remove();
+            }
+            if (laser.y < 0) {
+                laser.remove();
+            }
+        });
     }
 }
 
@@ -92,6 +149,10 @@ function colorString(r, g, b, a){
     return "#"+(r+g+b+a).toString(16).padStart(8, "0");
 }
 
+function getDiagonal(a, b){
+    return(Math.sqrt(a**2+b**2));
+}
+
 function colorMix(r1, g1, b1, a1, r2, g2, b2, a2){
     let r = r1*a1+r2*a2;
     let g = g1*a1+g2*a2;
@@ -118,7 +179,13 @@ while (ledges.length > 0) {
     ledgeOrder.push(ledges[highest.item]);
     ledges.splice(highest.item, 1);
 }
+
 let yourRobot = new YourRobot();
+let robots = [];
+for (let i=0; i<4; i++) {
+    let robot = new Robot(robots.length);
+    robots.push(robot);
+}
 
 function drawingLoop(){
     mctx.fillStyle = colorString(...bc, 1);
@@ -126,8 +193,16 @@ function drawingLoop(){
     ledgeOrder.forEach((ledge)=>{
         ledge.drawSelf(mctx, mcw, mch);
     });
+    robots.forEach((robot)=>{
+        robot.lasers.forEach((laser)=>{
+            laser.drawSelf;
+        });
+    });
     yourRobot.lasers.forEach((laser)=>{
         laser.drawSelf();
+    });
+    robots.forEach((robot)=>{
+        robot.drawSelf();
     });
     yourRobot.drawSelf();
     mctx.fillStyle = colorString(0.7, 0, 0, 0.7);
@@ -180,6 +255,10 @@ function physicsLoop(){
             laser.remove();
         }
     });
+    robots.forEach((robot)=>{
+        robot.updatePhysics();
+    });
+    timer ++;
     requestAnimationFrame(physicsLoop);
 }
 

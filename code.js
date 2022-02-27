@@ -190,7 +190,7 @@ function keyDown(event){
     if (event.key == "d") {
         yourRobot.velX = velChange*3;
     }
-    if (event.key == " ") {
+    if (event.key == "w") {
         if (!falling) {
             yourRobot.velY = velChange*-6;
         }
@@ -200,7 +200,7 @@ function keyDown(event){
             yourRobot.velY = velChange;
         }
     }
-    if (event.key == "w") {
+    if (event.key == "f") {
         yourRobot.velX = 0;
     }
 }

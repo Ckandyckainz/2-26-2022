@@ -13,7 +13,7 @@ if (mcw > mch) {
 let ledgeCount = 18;
 let bc = [102/255, 77/255, 51/255];
 yrm = mcm/20;
-let velChange = 2;
+let velChange = mch/324;
 
 class Ledge{
     constructor(){

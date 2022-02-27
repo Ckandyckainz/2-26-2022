@@ -37,6 +37,7 @@ class YourRobot{
         this.velY = 0;
         this.lasers = [];
         this.idCounter = 0;
+        this.atBottom = false;
     }
     drawSelf(){
         mctx.fillStyle = colorString(0.5, 0.5, 0.5, 1);
@@ -145,6 +146,7 @@ function physicsLoop(){
                 if (yourRobot.x > (ledge.x-ledge.w/2)*mcw-yrm/2) {
                     if (yourRobot.x < (ledge.x+ledge.w/2)*mcw+yrm/2) {
                         falling = false;
+                        yourRobot.atBottom = false;
                     }
                 }
             }
@@ -153,6 +155,7 @@ function physicsLoop(){
     if (yourRobot.y+yrm/2 > mch-yourRobot.velY-1) {
         if (yourRobot.y+yrm/2 < mch+yourRobot.velY+1) {
             falling = false;
+            yourRobot.atBottom = true;
         }
     }
     if (falling) {
@@ -184,42 +187,25 @@ physicsLoop();
 drawingLoop();
 
 function keyDown(event){
-    if (event.key == "a") {
+    if (event.key.toLowerCase() == "a") {
         yourRobot.velX = velChange*-3;
     }
-    if (event.key == "d") {
+    if (event.key.toLowerCase() == "d") {
         yourRobot.velX = velChange*3;
     }
-    if (event.key == "w") {
+    if (event.key.toLowerCase() == "w") {
         if (!falling) {
             yourRobot.velY = velChange*-6;
         }
     }
-    if (event.key == "s") {
+    if (event.key.toLowerCase() == "s") {
         if (!falling) {
-            yourRobot.velY = velChange;
+            if (!yourRobot.atBottom) {
+                yourRobot.velY = velChange;
+            }
         }
     }
-    if (event.key == "f") {
-        yourRobot.velX = 0;
-    }
-    if (event.key == "A") {
-        yourRobot.velX = velChange*-3;
-    }
-    if (event.key == "D") {
-        yourRobot.velX = velChange*3;
-    }
-    if (event.key == "W") {
-        if (!falling) {
-            yourRobot.velY = velChange*-6;
-        }
-    }
-    if (event.key == "S") {
-        if (!falling) {
-            yourRobot.velY = velChange;
-        }
-    }
-    if (event.key == "F") {
+    if (event.key.toLowerCase() == "f") {
         yourRobot.velX = 0;
     }
 }

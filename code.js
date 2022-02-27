@@ -35,6 +35,8 @@ class YourRobot{
         this.y = ledgeOrder[Math.ceil(ledgeCount/2)].y*mch-yrm/2;
         this.velX = 0;
         this.velY = 0;
+        this.lasers = [];
+        this.idCounter = 0;
     }
     drawSelf(){
         mctx.fillStyle = colorString(0.5, 0.5, 0.5, 1);
@@ -42,6 +44,38 @@ class YourRobot{
         mctx.strokeStyle = colorString(0, 0, 1, 1);
         mctx.lineWidth = yrm/8;
         mctx.strokeRect(this.x-yrm/4, this.y-yrm/4, yrm/2, yrm/2);
+    }
+}
+
+class Laser{
+    constructor(id, robot, yours, tarX, tarY){
+        this.id = id;
+        this.yours = yours;
+        this.robot = robot;
+        this.tarX = tarX;
+        this.tarY = tarY;
+        this.x = robot.x;
+        this.y = robot.y;
+        this.angle = Math.atan2(tarY-this.y, tarX-this.x);
+    }
+    drawSelf(){
+        if (this.yours) {
+            mctx.strokeStyle = "#0000ff";
+        } else {
+            mctx.strokeStyle = "#ffff00";
+        }
+        mctx.lineWidth = 5;
+        mctx.beginPath();
+        mctx.moveTo(this.x-Math.cos(this.angle)*10, this.y-Math.sin(this.angle)*10);
+        mctx.lineTo(this.x+Math.cos(this.angle)*10, this.y+Math.sin(this.angle)*10);
+        mctx.stroke();
+    }
+    remove(){
+        for (let i=0; i<this.robot.lasers.length; i++) {
+            if (this.robot.lasers[i].id == this.id) {
+                this.robot.lasers.splice(i, 1);
+            }
+        }
     }
 }
 
@@ -91,6 +125,9 @@ function drawingLoop(){
     ledgeOrder.forEach((ledge)=>{
         ledge.drawSelf(mctx, mcw, mch);
     });
+    yourRobot.lasers.forEach((laser)=>{
+        laser.drawSelf();
+    });
     yourRobot.drawSelf();
     mctx.fillStyle = colorString(0.7, 0, 0, 0.7);
     mctx.fillRect(0, mch*0.95, mcw, mch*0.05);
@@ -124,6 +161,22 @@ function physicsLoop(){
         yourRobot.velY = 0;
         yourRobot.velX *= 0.95;
     }
+    yourRobot.lasers.forEach((laser)=>{
+        laser.x += Math.cos(laser.angle)*10;
+        laser.y += Math.sin(laser.angle)*10;
+        if (laser.x > mcw) {
+            laser.remove();
+        }
+        if (laser.y > mch) {
+            laser.remove();
+        }
+        if (laser.x < 0) {
+            laser.remove();
+        }
+        if (laser.y < 0) {
+            laser.remove();
+        }
+    });
     requestAnimationFrame(physicsLoop);
 }
 
@@ -137,7 +190,7 @@ function keyDown(event){
     if (event.key == "d") {
         yourRobot.velX = velChange*3;
     }
-    if (event.key == "w") {
+    if (event.key == " ") {
         if (!falling) {
             yourRobot.velY = velChange*-6;
         }
@@ -147,8 +200,15 @@ function keyDown(event){
             yourRobot.velY = velChange;
         }
     }
-    if (event.key == "f") {
+    if (event.key == "w") {
         yourRobot.velX = 0;
     }
 }
 document.addEventListener("keydown", keyDown);
+
+function mcanClicked(event){
+    let laser = new Laser(yourRobot.idCounter, yourRobot, true, event.x, event.y);
+    yourRobot.lasers.push(laser);
+    yourRobot.idCounter ++;
+}
+mcan.addEventListener("click", mcanClicked);

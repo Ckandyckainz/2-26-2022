@@ -10,8 +10,8 @@ if (mcw > mch) {
 } else {
     mcm = mcw;
 }
-let ledgeCount = 20;
-let bc = [51/255, 38/255, 26/255];
+let ledgeCount = 18;
+let bc = [102/255, 77/255, 51/255];
 yrm = mcm/20;
 let velChange = 2;
 
@@ -31,15 +31,15 @@ class Ledge{
 
 class YourRobot{
     constructor(){
-        this.x = ledgeOrder[6].x*mcw;
-        this.y = ledgeOrder[6].y*mch-yrm/2;
+        this.x = ledgeOrder[Math.ceil(ledgeCount/2)].x*mcw;
+        this.y = ledgeOrder[Math.ceil(ledgeCount/2)].y*mch-yrm/2;
         this.velX = 0;
         this.velY = 0;
     }
     drawSelf(){
-        mctx.fillStyle = colorString(0.4, 0.4, 0.4, 1);
+        mctx.fillStyle = colorString(0.5, 0.5, 0.5, 1);
         mctx.fillRect(this.x-yrm/2, this.y-yrm/2, yrm, yrm);
-        mctx.strokeStyle = colorString(0, 0, 0.7, 1);
+        mctx.strokeStyle = colorString(0, 0, 1, 1);
         mctx.lineWidth = yrm/8;
         mctx.strokeRect(this.x-yrm/4, this.y-yrm/4, yrm/2, yrm/2);
     }
@@ -92,7 +92,7 @@ function drawingLoop(){
         ledge.drawSelf(mctx, mcw, mch);
     });
     yourRobot.drawSelf();
-    mctx.fillStyle = colorString(0.5, 0, 0, 0.7);
+    mctx.fillStyle = colorString(0.7, 0, 0, 0.7);
     mctx.fillRect(0, mch*0.95, mcw, mch*0.05);
     requestAnimationFrame(drawingLoop);
 }
@@ -138,7 +138,9 @@ function keyDown(event){
         }
     }
     if (event.key == "s") {
-        yourRobot.velY = velChange;
+        if (!falling) {
+            yourRobot.velY = velChange;
+        }
     }
     if (event.key == "f") {
         yourRobot.velX = 0;

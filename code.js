@@ -203,6 +203,25 @@ function keyDown(event){
     if (event.key == "f") {
         yourRobot.velX = 0;
     }
+    if (event.key == "A") {
+        yourRobot.velX = velChange*-3;
+    }
+    if (event.key == "D") {
+        yourRobot.velX = velChange*3;
+    }
+    if (event.key == "W") {
+        if (!falling) {
+            yourRobot.velY = velChange*-6;
+        }
+    }
+    if (event.key == "S") {
+        if (!falling) {
+            yourRobot.velY = velChange;
+        }
+    }
+    if (event.key == "F") {
+        yourRobot.velX = 0;
+    }
 }
 document.addEventListener("keydown", keyDown);
 

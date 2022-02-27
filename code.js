@@ -54,17 +54,9 @@ class Robot{
         this.id = id;
         this.x = Math.random();
         this.y = mch;
-        this.tarA = 0;
-        this.tarD = 0;
         this.speed = velChange*3;
         this.lasers = [];
         this.idCounter = 0;
-        this.radius = randomBetween(yrm/3, yrm*1.5, 1);
-        this.shootAngle = Math.random()*Math.PI*2;
-        this.shootAngleVary = Math.random()*Math.PI;
-        this.shootDistance = Math.random()*mcm/2;
-        this.shootDistanceVary = Math.random()*mcm/4;
-        this.setTar();
     }
     drawSelf(){
         mctx.fillStyle = colorString(0.5, 0.5, 0.5, 1);
@@ -73,19 +65,7 @@ class Robot{
         mctx.lineWidth = yrm/8;
         mctx.strokeRect(this.x-yrm/4, this.y-yrm/4, yrm/2, yrm/2);
     }
-    setTar(){
-        this.tarA = randomBetween(this.shootAngle-this.shootAngleVary, this.shootAngle+this.shootAngleVary, 0.01);
-        this.tarD = randomBetween(this.shootDistance-this.shootDistanceVary, this.shootDistance+this.shootDistanceVary, 1);
-    }
     updatePhysics(){
-        let angle = Math.atan2(this.y-yourRobot.y, this.x-yourRobot.x);
-        let distance = getDiagonal(this.x-yourRobot.x, this.y-yourRobot.y);
-        let moveTime = distance;
-        let newA = angle+(this.tarA-angle)/moveTime;
-        let newD = distance+(this.tarD-distance)/moveTime;
-        this.x = yourRobot.x+Math.cos(newA)*newD;
-        this.y = yourRobot.y+Math.sin(newA)*newD;
-
         this.lasers.forEach((laser)=>{
             laser.x += Math.cos(laser.angle)*10;
             laser.y += Math.sin(laser.angle)*10;

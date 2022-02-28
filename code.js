@@ -12,6 +12,7 @@ if (mcw > mch) {
 }
 let timer = 0;
 let yrCanShoot = true;
+let keysDown = [];
 let ledgeCount = 18;
 let bc = [102/255, 77/255, 51/255];
 yrm = mcm/20;
@@ -324,6 +325,29 @@ function physicsLoop(){
     if (yourRobot.health < 1-1/3600) {
         yourRobot.health += 1/3600;
     }
+    keysDown.forEach((keyDown)=>{
+        if (keyDown.toLowerCase() == "a") {
+            yourRobot.velX = velChange*-3;
+        }
+        if (keyDown.toLowerCase() == "d") {
+            yourRobot.velX = velChange*3;
+        }
+        if (keyDown.toLowerCase() == "w") {
+            if (!falling) {
+                yourRobot.velY = velChange*-6;
+            }
+        }
+        if (keyDown.toLowerCase() == "s") {
+            if (!falling) {
+                if (!yourRobot.atBottom) {
+                    yourRobot.velY = velChange*3;
+                }
+            }
+        }
+        if (keyDown.toLowerCase() == "f") {
+            yourRobot.velX = 0;
+        }
+    });
     if (yourRobot.health > 0) {
         requestAnimationFrame(physicsLoop);
     }
@@ -332,30 +356,27 @@ function physicsLoop(){
 physicsLoop();
 drawingLoop();
 
-function keyDown(event){
-    if (event.key.toLowerCase() == "a") {
-        yourRobot.velX = velChange*-3;
-    }
-    if (event.key.toLowerCase() == "d") {
-        yourRobot.velX = velChange*3;
-    }
-    if (event.key.toLowerCase() == "w") {
-        if (!falling) {
-            yourRobot.velY = velChange*-6;
+function keyDownEvent(event){
+    let hasKey = false;
+    keysDown.forEach((keyDown)=>{
+        if (keyDown == event.key) {
+            hasKey = true;
         }
-    }
-    if (event.key.toLowerCase() == "s") {
-        if (!falling) {
-            if (!yourRobot.atBottom) {
-                yourRobot.velY = velChange;
-            }
-        }
-    }
-    if (event.key.toLowerCase() == "f") {
-        yourRobot.velX = 0;
+    });
+    if (!hasKey) {
+        keysDown.push(event.key);
     }
 }
-document.addEventListener("keydown", keyDown);
+document.addEventListener("keydown", keyDownEvent);
+
+function keyUpEvent(event){
+    for (let i=0; i<keysDown.length; i++) {
+        if (keysDown[i] == event.key) {
+            keysDown.splice(i, 1);
+        }
+    }
+}
+document.addEventListener("keyup", keyUpEvent);
 
 function mcanMousemove(event){
     if (yrCanShoot) {

@@ -33,6 +33,7 @@ class Ledge{
 
 class YourRobot{
     constructor(){
+        this.health = 1;
         this.x = ledgeOrder[Math.ceil(ledgeCount/2)].x*mcw;
         this.y = ledgeOrder[Math.ceil(ledgeCount/2)].y*mch-yrm/2;
         this.velX = 0;
@@ -44,7 +45,7 @@ class YourRobot{
     drawSelf(){
         mctx.fillStyle = colorString(0.5, 0.5, 0.5, 1);
         mctx.fillRect(this.x-yrm/2, this.y-yrm/2, yrm, yrm);
-        mctx.strokeStyle = colorString(0, 0, 1, 1);
+        mctx.strokeStyle = colorString(0, 0, this.health, 1);
         mctx.lineWidth = yrm/8;
         mctx.strokeRect(this.x-yrm/4, this.y-yrm/4, yrm/2, yrm/2);
     }
@@ -52,6 +53,7 @@ class YourRobot{
 
 class Robot{
     constructor(id){
+        this.health = 1;
         this.id = id;
         this.x = Math.random()*mcw;
         this.y = mch;
@@ -76,9 +78,16 @@ class Robot{
     drawSelf(){
         mctx.fillStyle = colorString(0.5, 0.5, 0.5, 1);
         mctx.fillRect(this.x-yrm/2, this.y-yrm/2, yrm, yrm);
-        mctx.strokeStyle = colorString(1, 1, 0, 1);
+        mctx.strokeStyle = colorString(this.health, this.health, 0, 1);
         mctx.lineWidth = yrm/8;
         mctx.strokeRect(this.x-yrm/4, this.y-yrm/4, yrm/2, yrm/2);
+    }
+    remove(){
+        for (let i=0; i<robots.length; i++) {
+            if (robots[i].id == this.id) {
+                robots.splice(i, 1);
+            }
+        }
     }
     updatePhysics(){
         let angle = Math.atan2(this.y-yourRobot.y, this.x-yourRobot.x);
@@ -215,7 +224,12 @@ function drawingLoop(){
     yourRobot.drawSelf();
     mctx.fillStyle = colorString(0.7, 0, 0, 0.7);
     mctx.fillRect(0, mch*0.95, mcw, mch*0.05);
-    requestAnimationFrame(drawingLoop);
+    if (yourRobot.health > 0) {
+        requestAnimationFrame(drawingLoop);
+    } else {
+        yourRobot.health = 0;
+        yourRobot.drawSelf();
+    }
 }
 
 let falling = true;
@@ -270,7 +284,49 @@ function physicsLoop(){
     if (timer%10 == 0) {
         yrCanShoot = true;
     }
-    requestAnimationFrame(physicsLoop);
+    if (robots.length > 0) {
+        yourRobot.lasers.forEach((laser)=>{
+            let nearestRobot = robots[0];
+            robots.forEach((robot)=>{
+                if (robot.x**2+robot.y**2 < nearestRobot.x**2+nearestRobot.y**2) {
+                    nearestRobot = robot;
+                }
+            });
+            if (laser.x > nearestRobot.x-yrm) {
+                if (laser.x < nearestRobot.x+yrm) {
+                    if (laser.y > nearestRobot.y-yrm) {
+                        if (laser.y < nearestRobot.y+yrm) {
+                            laser.remove();
+                            nearestRobot.health -= 0.2;
+                            if (nearestRobot.health < 0) {
+                                nearestRobot.remove();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    robots.forEach((robot)=>{
+        robot.lasers.forEach((laser)=>{
+            if (laser.x > yourRobot.x-yrm/2) {
+                if (laser.x < yourRobot.x+yrm/2) {
+                    if (laser.y > yourRobot.y-yrm/2) {
+                        if (laser.y < yourRobot.y+yrm/2) {
+                            laser.remove();
+                            yourRobot.health -= 0.05;
+                        }
+                    }
+                }
+            }
+        });
+    });
+    if (yourRobot.health < 1-1/3600) {
+        yourRobot.health += 1/3600;
+    }
+    if (yourRobot.health > 0) {
+        requestAnimationFrame(physicsLoop);
+    }
 }
 
 physicsLoop();

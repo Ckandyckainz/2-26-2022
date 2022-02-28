@@ -322,6 +322,9 @@ function physicsLoop(){
             }
         });
     });
+    if (yourRobot.y > mch-yrm*1.5) {
+        yourRobot.health -= 1/300;
+    }
     if (yourRobot.health < 1-1/3600) {
         yourRobot.health += 1/3600;
     }

@@ -204,6 +204,9 @@ for (let i=0; i<12; i++) {
     let robot = new Robot(robots.length);
     robots.push(robot);
 }
+let defaultRobot = new Robot(-1);
+defaultRobot.x = mcm*-2;
+defaultRobot.y = mcm*-2;
 
 function drawingLoop(){
     mctx.fillStyle = colorString(...bc, 1);
@@ -287,7 +290,7 @@ function physicsLoop(){
     }
     if (robots.length > 0) {
         yourRobot.lasers.forEach((laser)=>{
-            let nearestRobot = robots[0];
+            let nearestRobot = defaultRobot;
             robots.forEach((robot)=>{
                 if (robot.x**2+robot.y**2 < nearestRobot.x**2+nearestRobot.y**2) {
                     nearestRobot = robot;
@@ -323,7 +326,7 @@ function physicsLoop(){
         });
     });
     if (yourRobot.y > mch-yrm*1.5) {
-        yourRobot.health -= 1/300;
+        yourRobot.health -= 1/180;
     }
     if (yourRobot.health < 1-1/3600) {
         yourRobot.health += 1/3600;

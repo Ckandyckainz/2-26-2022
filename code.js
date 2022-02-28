@@ -11,6 +11,7 @@ if (mcw > mch) {
     mcm = mcw;
 }
 let timer = 0;
+let yrCanShoot = true;
 let ledgeCount = 18;
 let bc = [102/255, 77/255, 51/255];
 yrm = mcm/20;
@@ -58,6 +59,19 @@ class Robot{
         this.lasers = [];
         this.idCounter = 0;
         this.tarD = randomBetween(mcm/8, mcm/2, 1);
+        this.shootTimes = [];
+        for (let i=0; i<randomBetween(1, 3, 1); i++) {
+            let info = {d: 0, v: 0};
+            info.d = randomBetween(120, 360, 1);
+            info.v = randomBetween(0, info.d, 1);
+            this.shootTimes.push(info);
+        }
+        this.laserSpeed = randomBetween(2, 11, 1);
+    }
+    shoot(){
+        let laser = new Laser(this.idCounter, this, false, yourRobot.x, yourRobot.y);
+        this.lasers.push(laser);
+        this.idCounter ++;
     }
     drawSelf(){
         mctx.fillStyle = colorString(0.5, 0.5, 0.5, 1);
@@ -74,9 +88,15 @@ class Robot{
         this.x = yourRobot.x+Math.cos(newA)*newD;
         this.y = yourRobot.y+Math.sin(newA)*newD;
 
+        this.shootTimes.forEach((st)=>{
+            if (timer%st.d == st.v) {
+                this.shoot();
+            }
+        });
+
         this.lasers.forEach((laser)=>{
-            laser.x += Math.cos(laser.angle)*10;
-            laser.y += Math.sin(laser.angle)*10;
+            laser.x += Math.cos(laser.angle)*this.speed;
+            laser.y += Math.sin(laser.angle)*this.speed;
             if (laser.x > mcw) {
                 laser.remove();
             }
@@ -170,7 +190,7 @@ while (ledges.length > 0) {
 
 let yourRobot = new YourRobot();
 let robots = [];
-for (let i=0; i<4; i++) {
+for (let i=0; i<12; i++) {
     let robot = new Robot(robots.length);
     robots.push(robot);
 }
@@ -183,7 +203,7 @@ function drawingLoop(){
     });
     robots.forEach((robot)=>{
         robot.lasers.forEach((laser)=>{
-            laser.drawSelf;
+            laser.drawSelf();
         });
     });
     yourRobot.lasers.forEach((laser)=>{
@@ -247,6 +267,9 @@ function physicsLoop(){
         robot.updatePhysics();
     });
     timer ++;
+    if (timer%10 == 0) {
+        yrCanShoot = true;
+    }
     requestAnimationFrame(physicsLoop);
 }
 
@@ -278,9 +301,12 @@ function keyDown(event){
 }
 document.addEventListener("keydown", keyDown);
 
-function mcanClicked(event){
-    let laser = new Laser(yourRobot.idCounter, yourRobot, true, event.x, event.y);
-    yourRobot.lasers.push(laser);
-    yourRobot.idCounter ++;
+function mcanMousemove(event){
+    if (yrCanShoot) {
+        let laser = new Laser(yourRobot.idCounter, yourRobot, true, event.x, event.y);
+        yourRobot.lasers.push(laser);
+        yourRobot.idCounter ++;
+        yrCanShoot = false;
+    }
 }
-mcan.addEventListener("click", mcanClicked);
+mcan.addEventListener("mousemove", mcanMousemove);

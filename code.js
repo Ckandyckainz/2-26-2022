@@ -302,9 +302,6 @@ function physicsLoop(){
                         if (laser.y < nearestRobot.y+yrm) {
                             laser.remove();
                             nearestRobot.health -= 0.2;
-                            if (nearestRobot.health < 0) {
-                                nearestRobot.remove();
-                            }
                         }
                     }
                 }
@@ -319,11 +316,19 @@ function physicsLoop(){
                         if (laser.y < yourRobot.y+yrm/2) {
                             laser.remove();
                             yourRobot.health -= 0.05;
+                            robot.health += 0.2;
+                            if (robot.health > 1) {
+                                robot.health = 1;
+                            }
                         }
                     }
                 }
             }
         });
+        robot.health -= 1/1200;
+        if (robot.health < 0) {
+            robot.remove();
+        }
     });
     if (yourRobot.y > mch-yrm*1.5) {
         yourRobot.health -= 1/180;

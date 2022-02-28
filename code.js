@@ -52,11 +52,12 @@ class YourRobot{
 class Robot{
     constructor(id){
         this.id = id;
-        this.x = Math.random();
+        this.x = Math.random()*mcw;
         this.y = mch;
         this.speed = velChange*3;
         this.lasers = [];
         this.idCounter = 0;
+        this.tarD = randomBetween(mcm/8, mcm/2, 1);
     }
     drawSelf(){
         mctx.fillStyle = colorString(0.5, 0.5, 0.5, 1);
@@ -66,6 +67,13 @@ class Robot{
         mctx.strokeRect(this.x-yrm/4, this.y-yrm/4, yrm/2, yrm/2);
     }
     updatePhysics(){
+        let angle = Math.atan2(this.y-yourRobot.y, this.x-yourRobot.x);
+        let distance = getDiagonal(this.x-yourRobot.x, this.y-yourRobot.y);
+        let newA = angle+this.speed/distance;
+        let newD = distance+(this.tarD-distance)/(100/velChange);
+        this.x = yourRobot.x+Math.cos(newA)*newD;
+        this.y = yourRobot.y+Math.sin(newA)*newD;
+
         this.lasers.forEach((laser)=>{
             laser.x += Math.cos(laser.angle)*10;
             laser.y += Math.sin(laser.angle)*10;
